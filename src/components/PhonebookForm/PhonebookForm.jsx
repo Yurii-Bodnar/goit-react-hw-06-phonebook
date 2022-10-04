@@ -1,12 +1,16 @@
-import PropTypes from 'prop-types';
 import { nanoid } from 'nanoid';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContacts } from 'redux/contanctsSlice';
 import css from './PhonebookForm.module.css';
 import Notiflix from 'notiflix';
 
-const PhonebookForm = ({ contacts, addContacts }) => {
+const PhonebookForm = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+
+  const contacts = useSelector(state => state.contacts.items)
+  const dispatch = useDispatch();
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -23,22 +27,22 @@ const PhonebookForm = ({ contacts, addContacts }) => {
   };
 
   const reset = () => {
-    // this.setState({ name: '', number: '' });
     setName('');
     setNumber('');
   };
 
   const handleSubmitt = e => {
     e.preventDefault();
-    const contact = { id: nanoid(), name: name, number: number };
-    if (
+    const name = e.target.name.value;
+    const number = e.target.number.value
+        if (
       contacts.filter(contact => {
         return contact.name === name;
       }).length
     ) {
       return Notiflix.Notify.warning(`${name} in already in contacts`);
     }
-    addContacts(contact);
+    dispatch(addContacts(name,number));
     reset();
   };
 
@@ -83,9 +87,5 @@ const PhonebookForm = ({ contacts, addContacts }) => {
   );
 };
 
-PhonebookForm.propTypes = {
-  contacts: PropTypes.arrayOf(PropTypes.shape(PropTypes.string.isRequired)),
-  addContacts: PropTypes.func.isRequired,
-};
 
 export default PhonebookForm;

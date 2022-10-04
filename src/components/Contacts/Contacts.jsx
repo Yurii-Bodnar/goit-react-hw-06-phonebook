@@ -1,17 +1,41 @@
 import PropTypes from 'prop-types';
-import css from './Contacts.module.css'
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteContact } from 'redux/contanctsSlice';
+import css from './Contacts.module.css';
 
-const Contacts = ({ contacts,deleteContact }) => {
+const Contacts = () => {
+  const filterState = useSelector(state => state.filter);
+  const contacts = useSelector(state => state.contacts.items);
+
+  const filterContacts = (contacts, filterState) => {
+    return filterState
+      ? contacts.filter(contact =>
+          contact.name.toLowerCase().includes(filterState.toLowerCase())
+          
+        )
+      : contacts;
+  };
+
+  const dispatch = useDispatch();
+  const filteredContacts = filterContacts(contacts, filterState);
+  // console.log(filteredContacts);
   return (
     <div className={css.container}>
       <ul className={css.list}>
-        {contacts.map(contact => {
+        {filteredContacts?.map(({ name, id, number }) => {
+          // console.log(name);
           return (
-            <li key={contact.id} className={css.item}>
+            <li key={id} className={css.item}>
               <p className={css.text}>
-                {contact.name}: <span>{contact.number}</span>
+                {name}: <span>{number}</span>
               </p>
-              <button className={css.btn} onClick={()=>deleteContact(contact.id)} type="button">Delete</button>
+              <button
+                className={css.btn}
+                onClick={() => dispatch(deleteContact(id))}
+                type="button"
+              >
+                Delete
+              </button>
             </li>
           );
         })}
@@ -21,11 +45,13 @@ const Contacts = ({ contacts,deleteContact }) => {
 };
 
 Contacts.propTypes = {
-    contacts:PropTypes.arrayOf(PropTypes.shape({
-        id:PropTypes.string.isRequired,
-        name:PropTypes.string.isRequired,
-        number:PropTypes.string.isRequired,
-    }))
-}
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      name: PropTypes.string.isRequired,
+      number: PropTypes.string.isRequired,
+    })
+  ),
+};
 
 export default Contacts;
